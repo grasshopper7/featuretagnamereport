@@ -1,8 +1,10 @@
 Feature: 
-  Empty Feat Name
+  Feature Four Description
 
   Scenario: 
-    Empty Scean Name
+    Feature Four
+    Scenario One Description
+    Empty Name
 
     And this is "FIRST" step
     And this is "SECOND" step

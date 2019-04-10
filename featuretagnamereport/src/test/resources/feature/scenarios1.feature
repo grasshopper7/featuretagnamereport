@@ -1,19 +1,20 @@
 @Feature
 Feature: Scenario and Scenario Outline Combination
-  Hell hell hell
+  Feature One Description
 
   @ScenarioOne
   Scenario: Scenario 1
-    hello hello
+    Feature One
+    Scenario One Description
 
     And this is "FIRST" step
     And this is "SECOND" step
 
   @ScenarioOutlineOne
   Scenario Outline: Scenario Outline 1
-  why why
-  not not 
-  at all
+    Feature One
+    Scenario Outline One Description
+
     Given this is "<num>" step
     When this is "<num>" step
 
