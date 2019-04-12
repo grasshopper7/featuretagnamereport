@@ -23,3 +23,15 @@ Feature: Scenario and Scenario Outline Combination
       | num    |
       | FIRST  |
       | SECOND |
+
+  Scenario Outline: Scenario Outline 2
+    Feature Two
+    Scenario Outline Two Description
+
+    Given this is "<num>" step
+    When this is "<num>" step
+
+    Examples: 
+      | num    |
+      | FIRST  |
+      | SECOND |

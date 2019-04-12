@@ -3,6 +3,7 @@ package cucumber.runtime.formatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -11,6 +12,7 @@ import cucumber.api.event.EventPublisher;
 import cucumber.api.event.TestCaseStarted;
 import cucumber.api.event.TestRunFinished;
 import cucumber.api.event.TestSourceRead;
+import gherkin.ast.Background;
 import gherkin.ast.Feature;
 import gherkin.ast.ScenarioDefinition;
 import gherkin.ast.ScenarioOutline;
@@ -19,16 +21,18 @@ public class DetailedDryRunFormatter implements EventListener {
 
 	private TestSourcesModel tsm = new TestSourcesModel();
 
-	private Map<String, String> featureToNameMap = new TreeMap<>();
-	private Map<String, String> featureToDescMap = new TreeMap<>();
+	private Map<String, Feature> uriToFeatureMap = new TreeMap<>();
+	private Map<String, Optional<Background>> uriToBackgroundMap = new TreeMap<>();
+
 	private Map<String, ScenarioOutline> rowToScenOutMap = new TreeMap<>();
 	private Map<String, ScenarioDefinition> rowToScenariosMap = new TreeMap<>();
+
 	private Map<String, List<String>> tagToScenariosMap = new TreeMap<>();
 	private Map<String, List<String>> scenarioToTagsMap = new TreeMap<>();
+
 	private Map<String, String> scenarioToNameMap = new TreeMap<>();
 	private Map<String, String> scenarioToDescMap = new TreeMap<>();
 
-	
 	@Override
 	public void setEventPublisher(EventPublisher publisher) {
 		publisher.registerHandlerFor(TestSourceRead.class, this::handleSourceRead);
@@ -40,12 +44,13 @@ public class DetailedDryRunFormatter implements EventListener {
 		tsm.addTestSourceReadEvent(event.uri, event);
 
 		Feature feature = tsm.getFeature(event.uri);
-
-		featureToNameMap.put(event.uri, feature.getName());
-		String fDesc = ((feature.getDescription() == null) ? "" : feature.getDescription());
-		featureToDescMap.put(event.uri, fDesc);
+		uriToFeatureMap.put(event.uri, feature);
 
 		List<ScenarioDefinition> sd = feature.getChildren();
+
+		feature.getChildren().stream().forEach(s -> s.getSteps().stream().forEach(st -> {
+			System.out.println(st.getText() + "----" + st.getKeyword());
+		}));
 
 		sd.stream().forEach(sc -> rowToScenariosMap.put(event.uri + " # " + sc.getLocation().getLine(), sc));
 
@@ -59,12 +64,20 @@ public class DetailedDryRunFormatter implements EventListener {
 	private void handleRunFinished(TestRunFinished event) {
 
 		System.out.println("---Feature Name-------------");
-		featureToNameMap.forEach((k, v) -> {
-			System.out.println(k + " -> " + v);
+		uriToFeatureMap.forEach((k, v) -> {
+			System.out.println(k + " -> " + v.getName());
 		});
 		System.out.println("---Feature Desc-------------");
-		featureToDescMap.forEach((k, v) -> {
-			System.out.println(k + " -> " + v);
+		uriToFeatureMap.forEach((k, v) -> {
+			System.out.println(k + " -> " + ((v.getDescription() == null) ? "" : v.getDescription()));
+		});
+		System.out.println("---Background Name----------");
+		uriToBackgroundMap.forEach((k, v) -> {
+			System.out.println(k + " -> " + v.map(Background::getName).orElse(""));
+		});
+		System.out.println("---Background Desc----------");
+		uriToBackgroundMap.forEach((k, v) -> {
+			System.out.println(k + " -> " + v.map(Background::getDescription).orElse(""));
 		});
 		System.out.println("---Scenario Name------------");
 		scenarioToNameMap.forEach((k, v) -> {
@@ -95,10 +108,16 @@ public class DetailedDryRunFormatter implements EventListener {
 
 	}
 
+	private Optional<Background> optBackground(TestCaseStarted event) {
+		TestSourcesModel.AstNode astNode = tsm.getAstNode(event.getTestCase().getUri(), event.getTestCase().getLine());
+		return Optional.ofNullable(TestSourcesModel.getBackgroundForTestCase(astNode));
+	}
+
 	private void handleCaseStarted(TestCaseStarted event) {
 
-		String key = event.getTestCase().getUri() + " # " + event.getTestCase().getLine();
+		uriToBackgroundMap.put(event.getTestCase().getUri(), optBackground(event));
 
+		String key = event.getTestCase().getUri() + " # " + event.getTestCase().getLine();
 		event.getTestCase().getTags().stream().forEach(t -> {
 			List<String> scen = new ArrayList<>();
 
@@ -122,6 +141,24 @@ public class DetailedDryRunFormatter implements EventListener {
 		scenarioToNameMap.put(soKey, event.getTestCase().getName());
 		String scDesc = rowToScenariosMap.get(soKey).getDescription();
 		scenarioToDescMap.put(soKey, scDesc == null ? "" : scDesc);
+	}
+
+	class Details {
+		String name;
+		String description;
+	}
+
+	class FeatureDetails extends Details {
+		Optional<BackgroundDetails> background;
+		List<ScenarioDetails> scenarios;
+	}
+
+	class BackgroundDetails extends Details {
+
+	}
+	
+	class ScenarioDetails extends Details {
+		
 	}
 
 }
