@@ -7,7 +7,7 @@ import cucumber.api.junit.Cucumber;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(glue = "stepdef", plugin = {
-		"cucumber.runtime.formatter.AdvancedDryRunFormatter" }, features = "src/test/resources/feature/", dryRun = true)
+		"cucumber.runtime.formatter.AdvancedDryRunFormatter:target/details" }, features = "src/test/resources/feature/", dryRun = true)
 public class AdvancedRunner {
 
 }

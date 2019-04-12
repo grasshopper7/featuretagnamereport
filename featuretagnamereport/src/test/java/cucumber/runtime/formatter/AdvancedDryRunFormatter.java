@@ -1,7 +1,10 @@
 package cucumber.runtime.formatter;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -15,6 +18,7 @@ import cucumber.api.event.EventPublisher;
 import cucumber.api.event.TestCaseStarted;
 import cucumber.api.event.TestRunFinished;
 import cucumber.api.event.TestSourceRead;
+import cucumber.api.formatter.NiceAppendable;
 import gherkin.ast.Background;
 import gherkin.ast.Feature;
 import gherkin.ast.ScenarioDefinition;
@@ -32,6 +36,8 @@ public class AdvancedDryRunFormatter implements EventListener {
 
 	private Map<String, List<String>> tagToScenariosMap = new TreeMap<>();
 	private Map<String, List<String>> scenarioToTagsMap = new TreeMap<>();
+
+	private NiceAppendable out;
 
 	@Override
 	public void setEventPublisher(EventPublisher publisher) {
@@ -51,10 +57,6 @@ public class AdvancedDryRunFormatter implements EventListener {
 		uriToFeatureMap.put(event.uri, new FeatureDetails(feature));
 
 		List<ScenarioDefinition> sd = feature.getChildren();
-
-		/*feature.getChildren().stream().forEach(s -> s.getSteps().stream().forEach(st -> {
-			System.out.println(st.getText() + "----" + st.getKeyword() + "----" + st.getArgument());
-		}));*/
 
 		sd.stream().forEach(sc -> rowToScenariosMap.put(event.uri + " # " + sc.getLocation().getLine(), sc));
 
@@ -99,21 +101,66 @@ public class AdvancedDryRunFormatter implements EventListener {
 			soKey = event.getTestCase().getUri() + " # " + rowToScenOutMap.get(key).getLocation().getLine();
 
 		ScenarioDefinition sc = rowToScenariosMap.get(soKey);
-		Set<ScenarioDetails> scDets = new HashSet<>();
+		Set<ScenarioDetails> scDets = new LinkedHashSet<>();
 		scDets.add(new ScenarioDetails(sc, soKey));
 		fd.scenarios.addAll(scDets);
 	}
+	
+	private void appendNewLine(String line) {
+		out.append(line + "\n");
+	}
 
 	private void handleRunFinished(TestRunFinished event) {
-		
-		System.out.println(rowToScenariosMap);
 
-		System.out.println("---Tags to Scenario---------");
-		tagToScenariosMap.forEach((k, v) -> {
-			System.out.println(k);
-			v.forEach(l -> System.out.println("\t" + l));
+		appendNewLine("---Feature Details--------");
+		uriToFeatureMap.forEach((uri, fd) -> {
+			appendNewLine("Uri - " + uri);
+			appendNewLine("Feature Name - " + fd.name);
+			appendNewLine("Feature Description - " + fd.description);
+			Optional<BackgroundDetails> back = fd.background;
+			back.ifPresent(b -> {
+				appendNewLine("Background Name - " + b.name);
+				appendNewLine("Background Description - " + b.description);
+				appendNewLine("Background Steps -------- ");
+			});
+			back.ifPresent(b -> {
+				b.steps.stream().forEach(s -> {
+					appendNewLine("\tBackground Step Text - " + s.text);
+					appendNewLine("\tBackground Step Keyword - " + s.keyword);
+					appendNewLine("\tBackground Step Argument - " + ((s.argument == null) ? "" : s.argument));
+					appendNewLine("\t-------------------- ");
+				});
+			});
+			Set<ScenarioDetails> scen = fd.scenarios;
+			appendNewLine("Scenarios --------");
+			scen.stream().forEach(sc -> {
+				appendNewLine("Scenario Name - " + sc.name);
+				appendNewLine("Scenario Description - " + sc.description);
+				if (sc.steps.size() > 0)
+					appendNewLine("Scenario Steps -------- ");
+				sc.steps.stream().forEach(s -> {
+					appendNewLine("\tStep Text - " + s.text);
+					appendNewLine("\tStep Keyword - " + s.keyword);
+					appendNewLine("\tStep Argument - " + ((s.argument == null) ? "" : s.argument));
+					appendNewLine("\t-------------------- ");
+				});
+			});
+			appendNewLine("--------------------");
+			appendNewLine("");
 		});
-		System.out.println("---Scenarios to Tag---------");
+		
+		appendNewLine("");
+
+		appendNewLine("---Tags to Scenario---------");
+		tagToScenariosMap.forEach((k, v) -> {
+			appendNewLine(k);
+			v.forEach(l -> appendNewLine("\t" + l));
+		});
+
+		appendNewLine("");
+		appendNewLine("");
+		
+		appendNewLine("---Scenarios to Tag---------");
 		tagToScenariosMap.keySet().stream().forEach(k -> tagToScenariosMap.get(k).forEach(v -> {
 			List<String> key = new ArrayList<>();
 			key.add(k);
@@ -123,36 +170,27 @@ public class AdvancedDryRunFormatter implements EventListener {
 			});
 		}));
 		scenarioToTagsMap.forEach((k, v) -> {
-			System.out.println(k);
-			v.forEach(l -> System.out.println("\t" + l));
+			appendNewLine(k);
+			v.forEach(l -> appendNewLine("\t" + l));
 		});
+		
+		out.println();
+		out.close();
+	}
 
-		System.out.println("---Feature Details--------");
-		uriToFeatureMap.forEach((uri, fd) -> {
-			System.out.println("----------------");
-			System.out.println("Uri - " + uri);
-			System.out.println("Feature Name - " + fd.name);
-			System.out.println("Feature Description - " + fd.description);
-			Optional<BackgroundDetails> back = fd.background;
-			System.out.println("Background Name - " + back.map(b -> b.name).orElse(""));
-			System.out.println("Background Description - " + back.map(b -> b.description).orElse(""));
-			back.map(b -> b.steps).orElse(new HashSet<>()).stream().forEach(s -> {
-				System.out.println("Background Step Text - " + s.text);
-				System.out.println("Background Step Keyword - " + s.keyword);
-				System.out.println("Background Step Argument - " + s.argument);
-			});
-			Set<ScenarioDetails> scen = fd.scenarios;
-			scen.stream().forEach(sc -> {
-				System.out.println("Scenario Name - " + sc.name);
-				System.out.println("Scenario Description = " + sc.description);
-				sc.steps.stream().forEach(s -> {
-					System.out.println("Step Text - " + s.text);
-					System.out.println("Step Keyword - " + s.keyword);
-					System.out.println("Step Argument - " + s.argument);
-				});
-			});
-		});
+	public AdvancedDryRunFormatter() {
+		out = new NiceAppendable(System.out);
+	}
 
+	public AdvancedDryRunFormatter(URL repDir) {
+		try {
+			out = new NiceAppendable(
+					new OutputStreamWriter(
+							new URLOutputStream(
+									(new URL(repDir, "report.log"))), "UTF-8"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	class Details {
@@ -167,7 +205,7 @@ public class AdvancedDryRunFormatter implements EventListener {
 
 	class FeatureDetails extends Details {
 		Optional<BackgroundDetails> background;
-		Set<ScenarioDetails> scenarios = new HashSet<>();
+		Set<ScenarioDetails> scenarios = new LinkedHashSet<>();
 
 		FeatureDetails(String name, String description) {
 			super(name, description);
@@ -179,7 +217,7 @@ public class AdvancedDryRunFormatter implements EventListener {
 	}
 
 	class BackgroundDetails extends Details {
-		Set<StepDetails> steps = new HashSet<>();		
+		Set<StepDetails> steps = new LinkedHashSet<>();
 
 		BackgroundDetails(String name, String description) {
 			super(name, description);
@@ -193,15 +231,15 @@ public class AdvancedDryRunFormatter implements EventListener {
 		}
 	}
 
-	class ScenarioDetails extends Details {
+	class ScenarioDetails extends Details /* implements Comparable<ScenarioDetails> */ {
 		String uri;
-		Set<StepDetails> steps = new HashSet<>();
+		Set<StepDetails> steps = new LinkedHashSet<>();
 
 		ScenarioDetails(String name, String description, String uri) {
-			super(name, description);
+			super(name, description == null ? "" : description);
 			this.uri = uri;
 		}
-		
+
 		ScenarioDetails(ScenarioDefinition sd, String uri) {
 			this(sd.getName(), sd.getDescription(), uri);
 			this.uri = uri;
@@ -221,7 +259,7 @@ public class AdvancedDryRunFormatter implements EventListener {
 		}
 	}
 
-	class StepDetails {
+	class StepDetails /* implements Comparable<StepDetails> */ {
 		String text;
 		String keyword;
 		Object argument;
