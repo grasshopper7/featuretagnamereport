@@ -105,9 +105,9 @@ public class AdvancedDryRunFormatter implements EventListener {
 		scDets.add(new ScenarioDetails(sc, soKey));
 		fd.scenarios.addAll(scDets);
 	}
-	
+
 	private void appendNewLine(String line) {
-		out.append(line + "\n");
+		out.append(line + System.getProperty("line.separator"));
 	}
 
 	private void handleRunFinished(TestRunFinished event) {
@@ -148,7 +148,7 @@ public class AdvancedDryRunFormatter implements EventListener {
 			appendNewLine("--------------------");
 			appendNewLine("");
 		});
-		
+
 		appendNewLine("");
 
 		appendNewLine("---Tags to Scenario---------");
@@ -159,7 +159,7 @@ public class AdvancedDryRunFormatter implements EventListener {
 
 		appendNewLine("");
 		appendNewLine("");
-		
+
 		appendNewLine("---Scenarios to Tag---------");
 		tagToScenariosMap.keySet().stream().forEach(k -> tagToScenariosMap.get(k).forEach(v -> {
 			List<String> key = new ArrayList<>();
@@ -173,7 +173,7 @@ public class AdvancedDryRunFormatter implements EventListener {
 			appendNewLine(k);
 			v.forEach(l -> appendNewLine("\t" + l));
 		});
-		
+
 		out.println();
 		out.close();
 	}
@@ -185,9 +185,7 @@ public class AdvancedDryRunFormatter implements EventListener {
 	public AdvancedDryRunFormatter(URL repDir) {
 		try {
 			out = new NiceAppendable(
-					new OutputStreamWriter(
-							new URLOutputStream(
-									(new URL(repDir, "report.log"))), "UTF-8"));
+					new OutputStreamWriter(new URLOutputStream((new URL(repDir, "report.log"))), "UTF-8"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -231,7 +229,7 @@ public class AdvancedDryRunFormatter implements EventListener {
 		}
 	}
 
-	class ScenarioDetails extends Details /* implements Comparable<ScenarioDetails> */ {
+	class ScenarioDetails extends Details {
 		String uri;
 		Set<StepDetails> steps = new LinkedHashSet<>();
 
@@ -259,7 +257,7 @@ public class AdvancedDryRunFormatter implements EventListener {
 		}
 	}
 
-	class StepDetails /* implements Comparable<StepDetails> */ {
+	class StepDetails {
 		String text;
 		String keyword;
 		Object argument;
