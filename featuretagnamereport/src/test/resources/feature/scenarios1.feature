@@ -1,16 +1,16 @@
-@Feature
+@Features
 Feature: Scenario and Scenario Outline Combination
   Feature One Description
 
-  @ScenarioOne
+  @Scenarios
   Scenario: Scenario 1
     Feature One
     Scenario One Description
 
-    And this is "FIRST" step
-    And this is "SECOND" step
+    Given this is "FIRST" step
+    Then this is "SECOND" step
 
-  @ScenarioOutlineOne
+  @ScenarioOutlines
   Scenario Outline: Scenario Outline 1
     Feature One
     Scenario Outline One Description
@@ -18,20 +18,9 @@ Feature: Scenario and Scenario Outline Combination
     Given this is "<num>" step
     When this is "<num>" step
 
-    @SOExamplesOne
+    @Examples
     Examples: 
       | num    |
       | FIRST  |
       | SECOND |
-
-  Scenario Outline: Scenario Outline 2
-    Feature Two
-    Scenario Outline Two Description
-
-    Given this is "<num>" step
-    When this is "<num>" step
-
-    Examples: 
-      | num    |
-      | FIRST  |
-      | SECOND |
+ 

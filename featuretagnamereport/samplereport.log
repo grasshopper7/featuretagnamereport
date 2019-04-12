@@ -1,0 +1,149 @@
+---Feature Details--------
+Uri - file:src/test/resources/feature/scenarios1.feature
+Feature Name - Scenario and Scenario Outline Combination
+Feature Description -   Feature One Description
+Scenarios --------
+Scenario Name - Scenario 1
+Scenario Description -     Feature One
+    Scenario One Description
+Scenario Steps -------- 
+	Step Text - this is "FIRST" step
+	Step Keyword - Given 
+	Step Argument - 
+	-------------------- 
+	Step Text - this is "SECOND" step
+	Step Keyword - Then 
+	Step Argument - 
+	-------------------- 
+Scenario Name - Scenario Outline 1
+Scenario Description -     Feature One
+    Scenario Outline One Description
+Scenario Steps -------- 
+	Step Text - this is "<num>" step
+	Step Keyword - Given 
+	Step Argument - 
+	-------------------- 
+	Step Text - this is "<num>" step
+	Step Keyword - When 
+	Step Argument - 
+	-------------------- 
+--------------------
+
+Uri - file:src/test/resources/feature/scenarios2.feature
+Feature Name - 
+Feature Description -   Feature Two
+  Description
+Background Name - Background Name
+Background Description -     Background Description
+Background Steps -------- 
+	Background Step Text - this is "FIR BACK" step
+	Background Step Keyword - And 
+	Background Step Argument - 
+	-------------------- 
+	Background Step Text - this is "SEC BACK" step
+	Background Step Keyword - And 
+	Background Step Argument - 
+	-------------------- 
+Scenarios --------
+Scenario Name - Scenario 2
+Scenario Description - 
+Scenario Steps -------- 
+	Step Text - this is "FIRST" step
+	Step Keyword - And 
+	Step Argument - 
+	-------------------- 
+--------------------
+
+Uri - file:src/test/resources/feature/scenarios3.feature
+Feature Name - Scenario Outline Only
+Feature Description - 
+Background Name - 
+Background Description -     Background
+    Description
+Background Steps -------- 
+	Background Step Text - this is "THI BACK" step
+	Background Step Keyword - Given 
+	Background Step Argument - 
+	-------------------- 
+Scenarios --------
+Scenario Name - Scenario Outline 3
+Scenario Description -     Scenario Outline Three Desc
+Scenario Steps -------- 
+	Step Text - this is "<num>" step
+	Step Keyword - When 
+	Step Argument - 
+	-------------------- 
+--------------------
+
+Uri - file:src/test/resources/feature/scenarios4.feature
+Feature Name - 
+Feature Description - 
+Background Name - Background Name
+Background Description - null
+Background Steps -------- 
+	Background Step Text - this is "FOU BACK" step
+	Background Step Keyword - When 
+	Background Step Argument - 
+	-------------------- 
+Scenarios --------
+Scenario Name - 
+Scenario Description - 
+Scenario Steps -------- 
+	Step Text - these are steps
+	Step Keyword - Then 
+	Step Argument - gherkin.ast.DataTable@58c1c010
+	-------------------- 
+Scenario Name - 
+Scenario Description - 
+Scenario Steps -------- 
+	Step Text - these are steps
+	Step Keyword - Then 
+	Step Argument - gherkin.ast.DataTable@b7f23d9
+	-------------------- 
+--------------------
+
+
+---Tags to Scenario---------
+@Examples
+	file:src/test/resources/feature/scenarios1.feature # 14
+@Features
+	file:src/test/resources/feature/scenarios1.feature # 6
+	file:src/test/resources/feature/scenarios1.feature # 14
+	file:src/test/resources/feature/scenarios2.feature # 13
+	file:src/test/resources/feature/scenarios3.feature # 11
+@ScenOne
+	file:src/test/resources/feature/scenarios4.feature # 7
+@ScenThree
+	file:src/test/resources/feature/scenarios4.feature # 15
+@ScenTwo
+	file:src/test/resources/feature/scenarios4.feature # 7
+	file:src/test/resources/feature/scenarios4.feature # 15
+@ScenarioOutlines
+	file:src/test/resources/feature/scenarios1.feature # 14
+	file:src/test/resources/feature/scenarios3.feature # 11
+@Scenarios
+	file:src/test/resources/feature/scenarios1.feature # 6
+	file:src/test/resources/feature/scenarios2.feature # 13
+
+
+---Scenarios to Tag---------
+file:src/test/resources/feature/scenarios1.feature # 14
+	@Examples
+	@Features
+	@ScenarioOutlines
+file:src/test/resources/feature/scenarios1.feature # 6
+	@Features
+	@Scenarios
+file:src/test/resources/feature/scenarios2.feature # 13
+	@Features
+	@Scenarios
+file:src/test/resources/feature/scenarios3.feature # 11
+	@Features
+	@ScenarioOutlines
+file:src/test/resources/feature/scenarios4.feature # 15
+	@ScenThree
+	@ScenTwo
+file:src/test/resources/feature/scenarios4.feature # 7
+	@ScenOne
+	@ScenTwo
+

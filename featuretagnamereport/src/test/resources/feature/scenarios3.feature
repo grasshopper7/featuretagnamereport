@@ -1,8 +1,16 @@
+@Features
 Feature: Scenario Outline Only
 
-  @ScenThree
+  Background: 
+    Background
+    Description
+
+    Given this is "THI BACK" step
+
+  @ScenarioOutlines
   Scenario Outline: Scenario Outline 3
-    Given this is "<num>" step
+    Scenario Outline Three Desc
+
     When this is "<num>" step
 
     Examples: 

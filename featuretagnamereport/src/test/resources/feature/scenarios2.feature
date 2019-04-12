@@ -1,14 +1,14 @@
-@FeatureSec
-Feature: Scenario Only
+@Features
+Feature: 
   Feature Two
   Description
 
-  Background: Back Name
-    Back Desc
+  Background: Background Name
+    Background Description
 
     And this is "FIR BACK" step
     And this is "SEC BACK" step
 
+  @Scenarios
   Scenario: Scenario 2
     And this is "FIRST" step
-    And this is "SECOND" step
