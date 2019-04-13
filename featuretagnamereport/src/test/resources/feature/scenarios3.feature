@@ -17,3 +17,4 @@ Feature: Scenario Outline Only
       | num    |
       | FIRST  |
       | SECOND |
+

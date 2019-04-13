@@ -17,3 +17,16 @@ Feature:
       | num | word |
       |   1 | one  |
       |   2 | two  |
+
+  Scenario: 
+    And this is "FIRST" step
+
+  Scenario Outline: Scenario Outline 3
+    Scenario Outline Three Desc
+
+    When this is "<num>" step
+
+    Examples: 
+      | num    |
+      | FIRST  |
+      | SECOND |

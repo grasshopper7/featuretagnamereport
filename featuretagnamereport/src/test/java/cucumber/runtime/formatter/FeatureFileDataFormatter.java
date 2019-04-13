@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import cucumber.api.event.EventListener;
@@ -25,14 +27,16 @@ import gherkin.ast.ScenarioDefinition;
 import gherkin.ast.ScenarioOutline;
 import gherkin.ast.Step;
 
-public class AdvancedDryRunFormatter implements EventListener {
+public class FeatureFileDataFormatter implements EventListener {
 
 	private TestSourcesModel tsm = new TestSourcesModel();
 
 	private Map<String, FeatureDetails> uriToFeatureMap = new TreeMap<>();
 
 	private Map<String, ScenarioOutline> rowToScenOutMap = new TreeMap<>();
-	private Map<String, ScenarioDefinition> rowToScenariosMap = new TreeMap<>();
+	private Map<String, ScenarioDefinition> lineToScenariosMap = new TreeMap<>();
+	
+	private Set<String> scenariosNoTags = new TreeSet<>();
 
 	private Map<String, List<String>> tagToScenariosMap = new TreeMap<>();
 	private Map<String, List<String>> scenarioToTagsMap = new TreeMap<>();
@@ -58,8 +62,10 @@ public class AdvancedDryRunFormatter implements EventListener {
 
 		List<ScenarioDefinition> sd = feature.getChildren();
 
-		sd.stream().forEach(sc -> rowToScenariosMap.put(event.uri + " # " + sc.getLocation().getLine(), sc));
-
+		sd.stream().filter(s -> !(s instanceof Background)).forEach(sc -> lineToScenariosMap.put(event.uri + " # " + sc.getLocation().getLine(), sc));
+		
+		scenariosNoTags.addAll(lineToScenariosMap.keySet());
+		
 		List<ScenarioOutline> scenout = sd.stream().filter(s -> s instanceof ScenarioOutline)
 				.map(so -> (ScenarioOutline) so).collect(Collectors.toList());
 
@@ -83,11 +89,15 @@ public class AdvancedDryRunFormatter implements EventListener {
 		String key = event.getTestCase().getUri() + " # " + event.getTestCase().getLine();
 		event.getTestCase().getTags().stream().forEach(t -> {
 			List<String> scen = new ArrayList<>();
-
-			if (rowToScenOutMap.containsKey(key))
-				scen.add(event.getTestCase().getUri() + " # " + rowToScenOutMap.get(key).getLocation().getLine());
-			else
+				
+			if (rowToScenOutMap.containsKey(key)) {
+				String soKey = event.getTestCase().getUri() + " # " + rowToScenOutMap.get(key).getLocation().getLine(); 
+				scen.add(soKey);
+				scenariosNoTags.remove(soKey);
+			} else {
 				scen.add(key);
+				scenariosNoTags.remove(key);
+			}
 
 			tagToScenariosMap.merge(t.getName(), scen, (l1, l2) -> {
 				if (!tagToScenariosMap.get(t.getName()).contains(l2.get(0)))
@@ -100,7 +110,7 @@ public class AdvancedDryRunFormatter implements EventListener {
 		if (rowToScenOutMap.containsKey(key))
 			soKey = event.getTestCase().getUri() + " # " + rowToScenOutMap.get(key).getLocation().getLine();
 
-		ScenarioDefinition sc = rowToScenariosMap.get(soKey);
+		ScenarioDefinition sc = lineToScenariosMap.get(soKey);
 		Set<ScenarioDetails> scDets = new LinkedHashSet<>();
 		scDets.add(new ScenarioDetails(sc, soKey));
 		fd.scenarios.addAll(scDets);
@@ -111,7 +121,7 @@ public class AdvancedDryRunFormatter implements EventListener {
 	}
 
 	private void handleRunFinished(TestRunFinished event) {
-
+		
 		appendNewLine("---Feature Details--------");
 		uriToFeatureMap.forEach((uri, fd) -> {
 			appendNewLine("Uri - " + uri);
@@ -173,16 +183,24 @@ public class AdvancedDryRunFormatter implements EventListener {
 			appendNewLine(k);
 			v.forEach(l -> appendNewLine("\t" + l));
 		});
+		
+		appendNewLine("");
+		appendNewLine("");
 
+		appendNewLine("---Scenarios without Tags---------");
+		scenariosNoTags.stream().forEach(s -> {
+			appendNewLine(s);
+		});
+		
 		out.println();
 		out.close();
 	}
 
-	public AdvancedDryRunFormatter() {
+	public FeatureFileDataFormatter() {
 		out = new NiceAppendable(System.out);
 	}
 
-	public AdvancedDryRunFormatter(URL repDir) {
+	public FeatureFileDataFormatter(URL repDir) {
 		try {
 			out = new NiceAppendable(
 					new OutputStreamWriter(new URLOutputStream((new URL(repDir, "report.log"))), "UTF-8"));
@@ -218,7 +236,7 @@ public class AdvancedDryRunFormatter implements EventListener {
 		Set<StepDetails> steps = new LinkedHashSet<>();
 
 		BackgroundDetails(String name, String description) {
-			super(name, description);
+			super(name, description == null ? "" : description);
 		}
 
 		BackgroundDetails(Background background) {

@@ -23,4 +23,6 @@ Feature: Scenario and Scenario Outline Combination
       | num    |
       | FIRST  |
       | SECOND |
- 
+
+  Scenario: 
+    And this is "FIRST" step
