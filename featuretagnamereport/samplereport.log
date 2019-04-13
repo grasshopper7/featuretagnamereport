@@ -27,6 +27,13 @@ Scenario Steps --------
 	Step Keyword - When 
 	Step Argument - 
 	-------------------- 
+Scenario Name - 
+Scenario Description - 
+Scenario Steps -------- 
+	Step Text - this is "FIRST" step
+	Step Keyword - And 
+	Step Argument - 
+	-------------------- 
 --------------------
 
 Uri - file:src/test/resources/feature/scenarios2.feature
@@ -91,14 +98,28 @@ Scenario Description -
 Scenario Steps -------- 
 	Step Text - these are steps
 	Step Keyword - Then 
-	Step Argument - gherkin.ast.DataTable@58c1c010
+	Step Argument - gherkin.ast.DataTable@279ad2e3
 	-------------------- 
 Scenario Name - 
 Scenario Description - 
 Scenario Steps -------- 
 	Step Text - these are steps
 	Step Keyword - Then 
-	Step Argument - gherkin.ast.DataTable@b7f23d9
+	Step Argument - gherkin.ast.DataTable@58134517
+	-------------------- 
+Scenario Name - 
+Scenario Description - 
+Scenario Steps -------- 
+	Step Text - this is "FIRST" step
+	Step Keyword - And 
+	Step Argument - 
+	-------------------- 
+Scenario Name - Scenario Outline 3
+Scenario Description -     Scenario Outline Three Desc
+Scenario Steps -------- 
+	Step Text - this is "<num>" step
+	Step Keyword - When 
+	Step Argument - 
 	-------------------- 
 --------------------
 
@@ -109,6 +130,7 @@ Scenario Steps --------
 @Features
 	file:src/test/resources/feature/scenarios1.feature # 6
 	file:src/test/resources/feature/scenarios1.feature # 14
+	file:src/test/resources/feature/scenarios1.feature # 27
 	file:src/test/resources/feature/scenarios2.feature # 13
 	file:src/test/resources/feature/scenarios3.feature # 11
 @ScenOne
@@ -131,6 +153,8 @@ file:src/test/resources/feature/scenarios1.feature # 14
 	@Examples
 	@Features
 	@ScenarioOutlines
+file:src/test/resources/feature/scenarios1.feature # 27
+	@Features
 file:src/test/resources/feature/scenarios1.feature # 6
 	@Features
 	@Scenarios
@@ -146,4 +170,9 @@ file:src/test/resources/feature/scenarios4.feature # 15
 file:src/test/resources/feature/scenarios4.feature # 7
 	@ScenOne
 	@ScenTwo
+
+
+---Scenarios without Tags---------
+file:src/test/resources/feature/scenarios4.feature # 21
+file:src/test/resources/feature/scenarios4.feature # 24
 
